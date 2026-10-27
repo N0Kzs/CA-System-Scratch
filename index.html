@@ -9,6 +9,29 @@
       src="https://cdn.jsdelivr.net/npm/echarts@6.0.0/dist/echarts.min.js"
     ></script>
     <style>
+      .page-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 14px;
+      }
+      .primary-button {
+        background: #2563eb;
+        color: white;
+        border: 0;
+        border-radius: 6px;
+        padding: 11px 17px;
+        font-weight: 600;
+      }
+      .primary-button:hover {
+        background: #1d4ed8;
+      }
+      td:nth-child(5),
+      td:nth-child(6) {
+        white-space: normal;
+        min-width: 160px;
+        line-height: 1.5;
+      }
+
       :root {
         font-family: Arial, Helvetica, sans-serif;
         color: #151518;
@@ -204,14 +227,14 @@
       .key i {
         width: 9px;
         height: 9px;
-        background: #39306d;
+        background: #ef4444;
         border-radius: 2px;
       }
       .key:nth-child(2) i {
-        background: #7dc798;
+        background: #22c55e;
       }
       .key:last-child i {
-        background: #e5b45d;
+        background: #3b82f6;
       }
       .table-title {
         padding: 12px;
@@ -472,22 +495,27 @@
         </nav>
       </aside>
       <main aria-label="Cash advance dashboard">
+        <div class="page-actions">
+          <button type="button" class="primary-button" id="newRequest">
+            + New Cash Advance
+          </button>
+        </div>
         <section class="kpis" aria-label="Request summary">
           <article class="card kpi">
             <h2 class="kpi-label">Total Requests</h2>
-            <div class="kpi-value">5</div>
+            <div class="kpi-value" id="totalRequests">8</div>
           </article>
           <article class="card kpi">
             <h2 class="kpi-label">Approved Amount</h2>
-            <div class="kpi-value">$148,950.00</div>
+            <div class="kpi-value" id="approvedAmount">₱37,500.00</div>
           </article>
           <article class="card kpi">
             <h2 class="kpi-label">Pending Amount</h2>
-            <div class="kpi-value">$21,500.00</div>
+            <div class="kpi-value" id="pendingAmount">₱23,000.00</div>
           </article>
           <article class="card kpi">
             <h2 class="kpi-label">Draft Requests</h2>
-            <div class="kpi-value">2</div>
+            <div class="kpi-value" id="draftRequests">2</div>
           </article>
         </section>
         <section class="charts" aria-label="Advance charts">
@@ -511,7 +539,7 @@
               id="statusChart"
               class="chart"
               role="img"
-              aria-label="Request status: 60 percent approved, 15 percent rejected, 20 percent in progress, 5 percent draft."
+              aria-label="Request status breakdown based on the requests in the table."
             ></div>
           </article>
         </section>
@@ -528,9 +556,10 @@
                   <th scope="col">Request Date</th>
                   <th scope="col">Amount</th>
                   <th scope="col">Purpose</th>
+                  <th scope="col">Remarks</th>
                   <th scope="col">Status</th>
                   <th scope="col">Actions</th>
-                </tr>
+                </tr> 
               </thead>
               <tbody id="requestRows"></tbody>
             </table>
@@ -551,54 +580,109 @@
       </form>
     </dialog>
     <script>
+      // Demo records are the shared source for the table, totals, and charts.
+      // Changes are kept in memory for the current page session.
       const requests = [
         {
-          ref: "#ADV-1024",
-          employee: "Anna Smith",
-          date: "08/01/2022",
-          amount: 1500,
-          purpose: "Purpose for someone",
+          ref: "#ADV-1027",
+          employee: "Maria Santos",
+          date: "2026-10-26",
+          amount: 8500,
+          purpose: "Client Site Visit & Transport",
+          remarks: "Endorsed to Accounting",
           status: "Approved",
         },
         {
-          ref: "#ADV-1023",
-          employee: "Anna Smith",
-          date: "08/01/2022",
-          amount: 1500,
-          purpose: "Purpose for atriosans",
+          ref: "#ADV-1026",
+          employee: "Paolo Reyes",
+          date: "2026-10-24",
+          amount: 18000,
+          purpose: "Urgent Network Equipment Purchase",
+          remarks: "Under HR verification",
+          status: "In Progress",
+        },
+        {
+          ref: "#ADV-1025",
+          employee: "Andrea Cruz",
+          date: "2026-10-21",
+          amount: 4500,
+          purpose: "Regional Sales Meeting Travel",
+          remarks: "Missing cost breakdown",
           status: "Rejected",
         },
         {
+          ref: "#ADV-1024",
+          employee: "Miguel Garcia",
+          date: "2026-10-20",
+          amount: 6000,
+          purpose: "Field Operations Allowance",
+          remarks: "Saved as draft",
+          status: "Draft",
+        },
+        {
+          ref: "#ADV-1023",
+          employee: "Camille Mendoza",
+          date: "2026-09-18",
+          amount: 12000,
+          purpose: "Branch Inventory Audit Travel",
+          remarks: "Endorsed to Accounting",
+          status: "Approved",
+        },
+        {
           ref: "#ADV-1022",
-          employee: "Anna Smith",
-          date: "08/01/2022",
-          amount: 1500,
-          purpose: "Pending for sales",
+          employee: "Rafael Lim",
+          date: "2026-09-15",
+          amount: 5000,
+          purpose: "Client Workshop Materials",
+          remarks: "Awaiting department confirmation",
           status: "In Progress",
         },
         {
           ref: "#ADV-1021",
-          employee: "Abdanei Danan",
-          date: "08/01/2022",
-          amount: 1500,
-          purpose: "Employee Cash Advance",
-          status: "Draft",
+          employee: "Isabel Tan",
+          date: "2026-08-12",
+          amount: 17000,
+          purpose: "Provincial Project Mobilization",
+          remarks: "Endorsed to Accounting",
+          status: "Approved",
         },
         {
           ref: "#ADV-1020",
-          employee: "Anna Smith",
-          date: "08/01/2022",
-          amount: 1500,
-          purpose: "Purpose for clamming",
+          employee: "Daniel Navarro",
+          date: "2026-08-10",
+          amount: 3500,
+          purpose: "Office Supplies Procurement",
+          remarks: "Saved as draft",
           status: "Draft",
         },
       ];
+      const statusColors = {
+        Approved: "#22c55e",
+        "In Progress": "#3b82f6",
+        Rejected: "#ef4444",
+        Draft: "#64748b",
+      };
       const currency = (value) =>
-        new Intl.NumberFormat("en-US", {
+        new Intl.NumberFormat("en-PH", {
           style: "currency",
-          currency: "USD",
+          currency: "PHP",
         }).format(value);
-      function renderRows() {
+      const totalFor = (status) =>
+        requests
+          .filter((request) => request.status === status)
+          .reduce((sum, request) => sum + request.amount, 0);
+      let monthlyChart, statusChart;
+      function renderDashboard() {
+        document.getElementById("totalRequests").textContent = requests.length;
+        document.getElementById("approvedAmount").textContent = currency(
+          totalFor("Approved"),
+        );
+        document.getElementById("pendingAmount").textContent = currency(
+          totalFor("In Progress"),
+        );
+        document.getElementById("draftRequests").textContent = requests.filter(
+          (request) => request.status === "Draft",
+        ).length;
         const tbody = document.getElementById("requestRows");
         tbody.replaceChildren();
         requests.forEach((request, index) => {
@@ -609,6 +693,7 @@
             request.date,
             currency(request.amount),
             request.purpose,
+            request.remarks,
           ].forEach((value) => {
             row.insertCell().textContent = value;
           });
@@ -618,14 +703,13 @@
           badge.textContent = request.status;
           row.insertCell().append(badge);
           const action = document.createElement("button");
+          action.type = "button";
           action.className =
             "table-action" + (request.status === "Draft" ? " edit" : "");
           action.innerHTML =
             request.status === "Draft"
               ? '<svg aria-hidden="true"><use href="#edit"/></svg>Edit'
-              : request.status === "Approved"
-                ? "View"
-                : "Details";
+              : "View Details";
           action.setAttribute(
             "aria-label",
             action.textContent + " " + request.ref,
@@ -633,22 +717,41 @@
           action.addEventListener("click", () => openRequest(index));
           row.insertCell().append(action);
         });
+        updateCharts();
       }
       const dialog = document.getElementById("requestDialog");
       let selectedRequest = null;
-      function openRequest(index) {
+      let creatingRequest = false;
+      function openRequest(index = null) {
         selectedRequest = index;
-        const request = requests[index],
-          editable = request.status === "Draft";
-        document.getElementById("dialog-title").textContent =
-          (editable ? "Edit draft " : "Request ") + request.ref;
+        creatingRequest = index === null;
+        const request = creatingRequest
+          ? {
+              employee: "",
+              date: new Intl.DateTimeFormat("en-CA", {
+                timeZone: "Asia/Taipei",
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+              }).format(new Date()),
+              amount: "",
+              purpose: "",
+              remarks: "Saved as draft",
+              status: "Draft",
+            }
+          : requests[index];
+        const editable = request.status === "Draft";
+        document.getElementById("dialog-title").textContent = creatingRequest
+          ? "New Cash Advance"
+          : (editable ? "Edit draft " : "Request ") + request.ref;
         const fields = document.getElementById("requestFields");
         fields.replaceChildren();
         [
-          ["employee", "Employee"],
-          ["date", "Request date"],
-          ["amount", "Amount ($)"],
+          ["employee", "Employee Name"],
+          ["date", "Request Date"],
+          ["amount", "Amount (₱)"],
           ["purpose", "Purpose"],
+          ["remarks", "HR Remarks"],
           ["status", "Status"],
         ].forEach(([key, title]) => {
           const label = document.createElement("label");
@@ -656,7 +759,8 @@
           const input = document.createElement("input");
           input.name = key;
           input.value = request[key];
-          input.readOnly = !editable || !["amount", "purpose"].includes(key);
+          input.readOnly =
+            !editable || !["employee", "amount", "purpose"].includes(key);
           if (key === "amount") {
             input.type = "number";
             input.min = "0.01";
@@ -670,6 +774,9 @@
         dialog.showModal();
       }
       document
+        .getElementById("newRequest")
+        .addEventListener("click", () => openRequest());
+      document
         .getElementById("closeDialog")
         .addEventListener("click", () => dialog.close());
       document
@@ -677,18 +784,44 @@
         .addEventListener("submit", (event) => {
           event.preventDefault();
           if (
-            selectedRequest === null ||
-            requests[selectedRequest].status !== "Draft"
+            !creatingRequest &&
+            (selectedRequest === null ||
+              requests[selectedRequest].status !== "Draft")
           )
             return;
           const values = new FormData(event.target);
-          requests[selectedRequest].amount = Number(values.get("amount"));
-          requests[selectedRequest].purpose = values.get("purpose").trim();
-          renderRows();
+          const employee = values.get("employee").trim();
+          const purpose = values.get("purpose").trim();
+          const amount = Number(values.get("amount"));
+          if (!employee || !purpose || !Number.isFinite(amount) || amount <= 0)
+            return;
+          if (creatingRequest) {
+            const nextId =
+              Math.max(
+                ...requests.map((request) => Number(request.ref.split("-")[1])),
+              ) + 1;
+            requests.unshift({
+              ref: "#ADV-" + nextId,
+              employee,
+              date: values.get("date"),
+              amount,
+              purpose,
+              remarks: "Saved as draft",
+              status: "Draft",
+            });
+          } else {
+            Object.assign(requests[selectedRequest], {
+              employee,
+              amount,
+              purpose,
+            });
+          }
+          renderDashboard();
           dialog.close();
         });
       function showNotice(title, message) {
         selectedRequest = null;
+        creatingRequest = false;
         document.getElementById("dialog-title").textContent = title;
         document.getElementById("requestFields").textContent = message;
         document.getElementById("saveRequest").hidden = true;
@@ -720,12 +853,51 @@
           showNotice(
             section,
             section === "Reports"
-              ? "The charts show sample monthly rejected, approved, and pending cash advances and request statuses. Connect your reporting data to display live results."
-              : "This demo uses US dollars. Draft edits apply only to the current page session.",
+              ? "Charts and totals are calculated from the sample requests shown in the table. Monthly amounts are grouped by request date for 2026; pending means In Progress."
+              : "Amounts are in Philippine pesos. New requests are saved as drafts. Changes apply only to the current page session.",
           );
         }),
       );
-      renderRows();
+      function updateCharts() {
+        if (!monthlyChart || !statusChart) return;
+        monthlyChart.setOption({
+          series: ["Rejected", "Approved", "In Progress"].map((status) => ({
+            name: status === "In Progress" ? "Pending" : status,
+            type: "bar",
+            barMaxWidth: 10,
+            barGap: "15%",
+            itemStyle: {
+              color: statusColors[status],
+              borderRadius: [1, 1, 0, 0],
+            },
+            data: Array.from({ length: 12 }, (_, month) =>
+              requests
+                .filter(
+                  (request) =>
+                    request.status === status &&
+                    request.date.startsWith("2026-") &&
+                    Number(request.date.slice(5, 7)) === month + 1,
+                )
+                .reduce((sum, request) => sum + request.amount, 0),
+            ),
+          })),
+        });
+        const counts = Object.keys(statusColors).map((name) => ({
+          name,
+          value: requests.filter((request) => request.status === name).length,
+          itemStyle: { color: statusColors[name] },
+        }));
+        statusChart.setOption({ series: [{ data: counts }] });
+        document
+          .getElementById("statusChart")
+          .setAttribute(
+            "aria-label",
+            "Request status breakdown: " +
+              counts.map((item) => item.value + " " + item.name).join(", ") +
+              ".",
+          );
+      }
+      renderDashboard();
       window.addEventListener("DOMContentLoaded", () => {
         if (!window.echarts) {
           document.querySelectorAll(".chart").forEach((element) => {
@@ -735,17 +907,21 @@
           });
           return;
         }
-        const monthly = echarts.init(document.getElementById("monthlyChart")),
-          status = echarts.init(document.getElementById("statusChart"));
+        monthlyChart = echarts.init(document.getElementById("monthlyChart"));
+        statusChart = echarts.init(document.getElementById("statusChart"));
         const font = {
           fontFamily: "Arial, Helvetica, sans-serif",
           fontSize: 10,
           color: "#333339",
         };
-        monthly.setOption({
+        monthlyChart.setOption({
           textStyle: font,
-          tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
-          grid: { top: 17, right: 0, bottom: 23, left: 24 },
+          tooltip: {
+            trigger: "axis",
+            axisPointer: { type: "shadow" },
+            valueFormatter: currency,
+          },
+          grid: { top: 17, right: 4, bottom: 23, left: 60 },
           xAxis: {
             type: "category",
             data: [
@@ -769,44 +945,20 @@
           yAxis: {
             type: "value",
             min: 0,
-            max: 400,
-            interval: 100,
-            axisLabel: font,
+            axisLabel: {
+              ...font,
+              formatter: (value) =>
+                "₱" +
+                new Intl.NumberFormat("en-PH", { notation: "compact" }).format(
+                  value,
+                ),
+            },
             splitLine: { lineStyle: { type: "dashed", color: "#e1e2e6" } },
           },
-          series: [
-            {
-              name: "Rejected",
-              type: "bar",
-              barMaxWidth: 10,
-              barGap: "15%",
-              itemStyle: { color: "#39306d", borderRadius: [1, 1, 0, 0] },
-              data: [
-                150, 205, 250, 185, 260, 245, 275, 295, 330, 260, 340, 300,
-              ],
-            },
-            {
-              name: "Approved",
-              type: "bar",
-              barMaxWidth: 10,
-              itemStyle: { color: "#7dc798", borderRadius: [1, 1, 0, 0] },
-              data: [
-                200, 255, 300, 235, 310, 295, 325, 345, 380, 310, 390, 350,
-              ],
-            },
-            {
-              name: "Pending",
-              type: "bar",
-              barMaxWidth: 10,
-              itemStyle: { color: "#e5b45d", borderRadius: [1, 1, 0, 0] },
-              data: [25, 35, 50, 35, 50, 45, 50, 50, 50, 50, 50, 50],
-            },
-          ],
         });
-        status.setOption({
+        statusChart.setOption({
           textStyle: font,
-          tooltip: { trigger: "item", formatter: "{b}: {d}%" },
-          color: ["#7dc798", "#5798da", "#ed676d", "#9399a6"],
+          tooltip: { trigger: "item", formatter: "{b}: {c} requests ({d}%)" },
           legend: {
             data: ["Approved", "Rejected", "In Progress", "Draft"],
             orient: "vertical",
@@ -827,18 +979,13 @@
               label: { show: false },
               itemStyle: { borderColor: "#fff", borderWidth: 1 },
               emphasis: { scaleSize: 4 },
-              data: [
-                { name: "Approved", value: 60 },
-                { name: "In Progress", value: 20 },
-                { name: "Rejected", value: 15 },
-                { name: "Draft", value: 5 },
-              ],
             },
           ],
         });
+        updateCharts();
         new ResizeObserver(() => {
-          monthly.resize();
-          status.resize();
+          monthlyChart.resize();
+          statusChart.resize();
         }).observe(document.querySelector(".charts"));
       });
     </script>
