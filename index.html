@@ -190,11 +190,10 @@
         width: 100%;
       }
       .bar-legend {
-        position: absolute;
-        right: 12px;
-        top: 13px;
         display: flex;
+        justify-content: flex-end;
         gap: 12px;
+        margin-top: 8px;
         font-size: 10px;
       }
       .key {
@@ -208,8 +207,11 @@
         background: #39306d;
         border-radius: 2px;
       }
+      .key:nth-child(2) i {
+        background: #7dc798;
+      }
       .key:last-child i {
-        background: #cfd1d9;
+        background: #e5b45d;
       }
       .table-title {
         padding: 12px;
@@ -490,16 +492,17 @@
         </section>
         <section class="charts" aria-label="Advance charts">
           <article class="card chart-card">
-            <h2>Monthly Advance Disbursed</h2>
+            <h2>Monthly Cash Advances</h2>
             <div class="bar-legend" aria-hidden="true">
-              <span class="key"><i></i>Mors</span
-              ><span class="key"><i></i>Draft</span>
+              <span class="key"><i></i>Rejected</span>
+              <span class="key"><i></i>Approved</span>
+              <span class="key"><i></i>Pending</span>
             </div>
             <div
               id="monthlyChart"
               class="chart"
               role="img"
-              aria-label="Monthly grouped bar chart comparing disbursed advances and drafts."
+              aria-label="Monthly grouped bar chart comparing rejected, approved, and pending cash advances from January to December."
             ></div>
           </article>
           <article class="card chart-card">
@@ -717,7 +720,7 @@
           showNotice(
             section,
             section === "Reports"
-              ? "The charts show sample monthly disbursements and request statuses. Connect your reporting data to display live results."
+              ? "The charts show sample monthly rejected, approved, and pending cash advances and request statuses. Connect your reporting data to display live results."
               : "This demo uses US dollars. Draft edits apply only to the current page session.",
           );
         }),
@@ -773,7 +776,7 @@
           },
           series: [
             {
-              name: "Mors",
+              name: "Rejected",
               type: "bar",
               barMaxWidth: 10,
               barGap: "15%",
@@ -783,13 +786,20 @@
               ],
             },
             {
-              name: "Draft",
+              name: "Approved",
               type: "bar",
               barMaxWidth: 10,
-              itemStyle: { color: "#cfd1d9", borderRadius: [1, 1, 0, 0] },
+              itemStyle: { color: "#7dc798", borderRadius: [1, 1, 0, 0] },
               data: [
-                125, 170, 225, 215, 210, 330, 205, 345, 345, 310, 240, 275,
+                200, 255, 300, 235, 310, 295, 325, 345, 380, 310, 390, 350,
               ],
+            },
+            {
+              name: "Pending",
+              type: "bar",
+              barMaxWidth: 10,
+              itemStyle: { color: "#e5b45d", borderRadius: [1, 1, 0, 0] },
+              data: [25, 35, 50, 35, 50, 45, 50, 50, 50, 50, 50, 50],
             },
           ],
         });
