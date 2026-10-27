@@ -1,0 +1,836 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Employee Cash Advance System</title>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/echarts@6.0.0/dist/echarts.min.js"
+    ></script>
+    <style>
+      :root {
+        font-family: Arial, Helvetica, sans-serif;
+        color: #151518;
+        background: #f1f2f5;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-size: 12px;
+      }
+      button,
+      input {
+        font: inherit;
+      }
+      button {
+        cursor: pointer;
+      }
+      button:focus-visible,
+      input:focus-visible {
+        outline: 2px solid #447ac8;
+        outline-offset: 3px;
+      }
+      .topbar {
+        height: 45px;
+        background: white;
+        border-bottom: 1px solid #e7e7eb;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 18px 0 14px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 15px;
+        font-weight: 600;
+      }
+      .brand-mark {
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+        background: linear-gradient(110deg, #4667c8 55%, #76b8df 55%);
+        color: white;
+        display: grid;
+        place-items: center;
+      }
+      .top-actions {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+      .icon-button {
+        background: none;
+        border: 0;
+        padding: 0;
+        display: grid;
+        place-items: center;
+        color: #81838c;
+        position: relative;
+        width: 18px;
+        height: 24px;
+      }
+      svg {
+        width: 16px;
+        height: 16px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.4;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .avatar {
+        border-radius: 50%;
+        width: 25px;
+        height: 25px;
+        background: #eceef0;
+        overflow: hidden;
+      }
+      .avatar svg {
+        width: 25px;
+        height: 25px;
+        fill: #969ba5;
+        stroke: none;
+      }
+      .dot {
+        position: absolute;
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: #ce5366;
+        top: 2px;
+        right: 0;
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: 155px minmax(0, 1fr);
+        min-height: calc(100vh - 45px);
+      }
+      .sidebar {
+        background: #fff;
+        border-right: 1px solid #ececf0;
+        padding: 12px 7px;
+      }
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        width: 100%;
+        padding: 7px 9px;
+        margin-bottom: 3px;
+        border: 0;
+        border-radius: 5px;
+        background: transparent;
+        text-align: left;
+        font-size: 11px;
+        color: #202027;
+      }
+      .nav-item svg {
+        color: #8b8d96;
+        flex-shrink: 0;
+      }
+      .nav-item.active {
+        background: #ededef;
+      }
+      .nav-item.active svg {
+        color: #4276c7;
+      }
+      main {
+        padding: 15px 16px 24px;
+        min-width: 0;
+      }
+      .kpis {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 13px;
+        margin-bottom: 13px;
+      }
+      .card {
+        background: white;
+        border: 1px solid #d8d9de;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .kpi {
+        padding: 13px;
+        min-height: 72px;
+      }
+      .kpi-label {
+        margin: 0 0 4px;
+        font-size: 12px;
+        font-weight: 400;
+      }
+      .kpi-value {
+        font-size: 23px;
+        font-weight: 600;
+        letter-spacing: -0.4px;
+      }
+      .charts {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 13px;
+        margin-bottom: 13px;
+      }
+      .chart-card {
+        padding: 12px 12px 8px;
+        min-width: 0;
+        position: relative;
+      }
+      h2 {
+        font-size: 13px;
+        font-weight: 500;
+        margin: 0;
+      }
+      .chart {
+        height: 158px;
+        width: 100%;
+      }
+      .bar-legend {
+        position: absolute;
+        right: 12px;
+        top: 13px;
+        display: flex;
+        gap: 12px;
+        font-size: 10px;
+      }
+      .key {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .key i {
+        width: 9px;
+        height: 9px;
+        background: #39306d;
+        border-radius: 2px;
+      }
+      .key:last-child i {
+        background: #cfd1d9;
+      }
+      .table-title {
+        padding: 12px;
+        height: 39px;
+      }
+      .table-scroll {
+        overflow-x: auto;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        white-space: nowrap;
+        font-size: 10.5px;
+        text-align: left;
+      }
+      th {
+        background: #f0f1f3;
+        font-weight: 400;
+        padding: 7px 12px;
+        border-top: 1px solid #dedfe3;
+      }
+      td {
+        border-top: 1px solid #dedfe3;
+        padding: 5px 12px;
+        height: 31px;
+      }
+      th:last-child,
+      td:last-child {
+        text-align: center;
+      }
+      .badge {
+        padding: 3px 7px;
+        border-radius: 12px;
+        display: inline-block;
+        line-height: 13px;
+      }
+      .approved {
+        background: #d1eddd;
+        color: #356a4b;
+      }
+      .rejected {
+        background: #f5d0d3;
+        color: #843b40;
+      }
+      .in-progress {
+        background: #cee2f9;
+        color: #345b7c;
+      }
+      .draft {
+        background: #d3d5db;
+        color: #444c58;
+      }
+      .table-action {
+        background: none;
+        border: 0;
+        color: #3e5f89;
+        padding: 3px 6px;
+        font-size: 10.5px;
+      }
+      .table-action.edit {
+        border: 1px solid #8291a8;
+        border-radius: 4px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 6px;
+      }
+      .table-action svg {
+        width: 12px;
+        height: 12px;
+      }
+      dialog {
+        width: min(420px, calc(100% - 32px));
+        padding: 24px;
+        border: 1px solid #d8d9de;
+        border-radius: 10px;
+        box-shadow: 0 15px 60px #18244030;
+      }
+      dialog::backdrop {
+        background: #20273555;
+      }
+      dialog h2 {
+        font-size: 17px;
+        margin-bottom: 18px;
+      }
+      dialog label {
+        display: grid;
+        gap: 6px;
+        margin: 12px 0;
+        color: #555b65;
+      }
+      dialog input {
+        width: 100%;
+        padding: 9px;
+        border: 1px solid #d8d9de;
+        border-radius: 5px;
+        color: #151518;
+        background: #fff;
+      }
+      .dialog-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 20px;
+      }
+      .dialog-actions button {
+        padding: 8px 13px;
+        border: 1px solid #d8d9de;
+        border-radius: 5px;
+        background: #fff;
+      }
+      .dialog-actions .save {
+        background: #3b6bb8;
+        color: white;
+        border-color: #3b6bb8;
+      }
+      .chart-error {
+        padding: 35px 10px;
+        color: #757985;
+        line-height: 1.6;
+      }
+      @media (min-width: 1300px) {
+        .chart {
+          height: 240px;
+        }
+        .kpi {
+          padding: 18px;
+        }
+        td {
+          height: 39px;
+        }
+      }
+      @media (max-width: 800px) {
+        .layout {
+          grid-template-columns: 52px minmax(0, 1fr);
+        }
+        .nav-item {
+          justify-content: center;
+          padding: 9px;
+        }
+        .nav-label {
+          display: none;
+        }
+        main {
+          padding: 12px;
+        }
+        .kpis {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .charts {
+          grid-template-columns: 1fr;
+        }
+        .chart {
+          height: 210px;
+        }
+      }
+      @media (max-width: 420px) {
+        .brand {
+          font-size: 12px;
+          gap: 6px;
+        }
+        .top-actions {
+          gap: 9px;
+        }
+        .topbar {
+          padding: 0 10px;
+        }
+        .kpi-value {
+          font-size: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <svg aria-hidden="true" style="display: none">
+      <symbol id="grid" viewBox="0 0 24 24">
+        <rect x="3" y="3" width="7" height="7" rx="1" fill="currentColor" />
+        <rect x="14" y="3" width="7" height="7" rx="1" />
+        <rect x="3" y="14" width="7" height="7" rx="1" />
+        <rect x="14" y="14" width="7" height="7" rx="1" fill="currentColor" />
+      </symbol>
+      <symbol id="requests" viewBox="0 0 24 24">
+        <path
+          d="M8 5H5a2 2 0 0 0-2 2v13h16V7a2 2 0 0 0-2-2h-3M8 3h6v4H8zM6 12h5m-5 4h3"
+        />
+        <circle cx="17" cy="15" r="4" />
+      </symbol>
+      <symbol id="report" viewBox="0 0 24 24">
+        <path
+          d="M6 3h8l4 4v14H4V5a2 2 0 0 1 2-2zM14 3v5h4M8 17v-4m4 4V9m4 8v-5"
+        />
+      </symbol>
+      <symbol id="settings" viewBox="0 0 24 24">
+        <path d="m9 3-1 3-3 1-2 4 2 2v4l4 2 2 2 4-2 3-1v-4l3-2-2-4-3-1-1-3z" />
+        <circle cx="12" cy="12" r="3" />
+      </symbol>
+      <symbol id="edit" viewBox="0 0 24 24">
+        <path d="m15 4 5 5M3 21l2-7L17 2l5 5-12 12z" />
+      </symbol>
+    </svg>
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">◧</span>Employee Cash
+        Advance System
+      </div>
+      <div class="top-actions">
+        <span class="avatar" aria-label="Employee profile" role="img"
+          ><svg viewBox="0 0 24 24">
+            <circle cx="12" cy="9" r="4" />
+            <path d="M4 24v-3a8 8 0 0 1 16 0v3" /></svg></span
+        ><button
+          class="icon-button"
+          aria-label="Notifications"
+          data-notice="You have no new notifications."
+        >
+          <svg viewBox="0 0 24 24">
+            <path d="M5 17h14l-2-3V9a5 5 0 0 0-10 0v5zM10 21h4" /></svg
+          ><span class="dot"></span></button
+        ><button
+          class="icon-button"
+          aria-label="Sign out"
+          data-notice="This is a dashboard demo. No account is currently signed in."
+        >
+          <svg viewBox="0 0 24 24">
+            <path d="M10 4H4v16h6m5-13 5 5-5 5m-6-5h11" />
+          </svg>
+        </button>
+      </div>
+    </header>
+    <div class="layout">
+      <aside class="sidebar">
+        <nav aria-label="Main navigation">
+          <button
+            class="nav-item active"
+            aria-current="page"
+            data-section="Dashboard"
+            title="Dashboard"
+          >
+            <svg><use href="#grid" /></svg
+            ><span class="nav-label">Dashboard</span>
+          </button>
+          <button
+            class="nav-item"
+            data-section="Advance Requests"
+            title="Advance Requests"
+          >
+            <svg><use href="#requests" /></svg
+            ><span class="nav-label">Advance Requests</span>
+          </button>
+          <button class="nav-item" data-section="Reports" title="Reports">
+            <svg><use href="#report" /></svg
+            ><span class="nav-label">Reports</span>
+          </button>
+          <button class="nav-item" data-section="Settings" title="Settings">
+            <svg><use href="#settings" /></svg
+            ><span class="nav-label">Settings</span>
+          </button>
+        </nav>
+      </aside>
+      <main aria-label="Cash advance dashboard">
+        <section class="kpis" aria-label="Request summary">
+          <article class="card kpi">
+            <h2 class="kpi-label">Total Requests</h2>
+            <div class="kpi-value">5</div>
+          </article>
+          <article class="card kpi">
+            <h2 class="kpi-label">Approved Amount</h2>
+            <div class="kpi-value">$148,950.00</div>
+          </article>
+          <article class="card kpi">
+            <h2 class="kpi-label">Pending Amount</h2>
+            <div class="kpi-value">$21,500.00</div>
+          </article>
+          <article class="card kpi">
+            <h2 class="kpi-label">Draft Requests</h2>
+            <div class="kpi-value">2</div>
+          </article>
+        </section>
+        <section class="charts" aria-label="Advance charts">
+          <article class="card chart-card">
+            <h2>Monthly Advance Disbursed</h2>
+            <div class="bar-legend" aria-hidden="true">
+              <span class="key"><i></i>Mors</span
+              ><span class="key"><i></i>Draft</span>
+            </div>
+            <div
+              id="monthlyChart"
+              class="chart"
+              role="img"
+              aria-label="Monthly grouped bar chart comparing disbursed advances and drafts."
+            ></div>
+          </article>
+          <article class="card chart-card">
+            <h2>Request Status Breakdown</h2>
+            <div
+              id="statusChart"
+              class="chart"
+              role="img"
+              aria-label="Request status: 60 percent approved, 15 percent rejected, 20 percent in progress, 5 percent draft."
+            ></div>
+          </article>
+        </section>
+        <section class="card transactions" aria-labelledby="transactions-title">
+          <div class="table-title">
+            <h2 id="transactions-title">Recent Transaction Requests</h2>
+          </div>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Reference #</th>
+                  <th scope="col">Employee Name</th>
+                  <th scope="col">Request Date</th>
+                  <th scope="col">Amount</th>
+                  <th scope="col">Purpose</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="requestRows"></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+    <dialog id="requestDialog" aria-labelledby="dialog-title">
+      <form id="requestForm">
+        <h2 id="dialog-title">Request details</h2>
+        <div id="requestFields"></div>
+        <div class="dialog-actions">
+          <button type="button" id="closeDialog">Close</button
+          ><button type="submit" class="save" id="saveRequest">
+            Save draft
+          </button>
+        </div>
+      </form>
+    </dialog>
+    <script>
+      const requests = [
+        {
+          ref: "#ADV-1024",
+          employee: "Anna Smith",
+          date: "08/01/2022",
+          amount: 1500,
+          purpose: "Purpose for someone",
+          status: "Approved",
+        },
+        {
+          ref: "#ADV-1023",
+          employee: "Anna Smith",
+          date: "08/01/2022",
+          amount: 1500,
+          purpose: "Purpose for atriosans",
+          status: "Rejected",
+        },
+        {
+          ref: "#ADV-1022",
+          employee: "Anna Smith",
+          date: "08/01/2022",
+          amount: 1500,
+          purpose: "Pending for sales",
+          status: "In Progress",
+        },
+        {
+          ref: "#ADV-1021",
+          employee: "Abdanei Danan",
+          date: "08/01/2022",
+          amount: 1500,
+          purpose: "Employee Cash Advance",
+          status: "Draft",
+        },
+        {
+          ref: "#ADV-1020",
+          employee: "Anna Smith",
+          date: "08/01/2022",
+          amount: 1500,
+          purpose: "Purpose for clamming",
+          status: "Draft",
+        },
+      ];
+      const currency = (value) =>
+        new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: "USD",
+        }).format(value);
+      function renderRows() {
+        const tbody = document.getElementById("requestRows");
+        tbody.replaceChildren();
+        requests.forEach((request, index) => {
+          const row = tbody.insertRow();
+          [
+            request.ref,
+            request.employee,
+            request.date,
+            currency(request.amount),
+            request.purpose,
+          ].forEach((value) => {
+            row.insertCell().textContent = value;
+          });
+          const badge = document.createElement("span");
+          badge.className =
+            "badge " + request.status.toLowerCase().replaceAll(" ", "-");
+          badge.textContent = request.status;
+          row.insertCell().append(badge);
+          const action = document.createElement("button");
+          action.className =
+            "table-action" + (request.status === "Draft" ? " edit" : "");
+          action.innerHTML =
+            request.status === "Draft"
+              ? '<svg aria-hidden="true"><use href="#edit"/></svg>Edit'
+              : request.status === "Approved"
+                ? "View"
+                : "Details";
+          action.setAttribute(
+            "aria-label",
+            action.textContent + " " + request.ref,
+          );
+          action.addEventListener("click", () => openRequest(index));
+          row.insertCell().append(action);
+        });
+      }
+      const dialog = document.getElementById("requestDialog");
+      let selectedRequest = null;
+      function openRequest(index) {
+        selectedRequest = index;
+        const request = requests[index],
+          editable = request.status === "Draft";
+        document.getElementById("dialog-title").textContent =
+          (editable ? "Edit draft " : "Request ") + request.ref;
+        const fields = document.getElementById("requestFields");
+        fields.replaceChildren();
+        [
+          ["employee", "Employee"],
+          ["date", "Request date"],
+          ["amount", "Amount ($)"],
+          ["purpose", "Purpose"],
+          ["status", "Status"],
+        ].forEach(([key, title]) => {
+          const label = document.createElement("label");
+          label.textContent = title;
+          const input = document.createElement("input");
+          input.name = key;
+          input.value = request[key];
+          input.readOnly = !editable || !["amount", "purpose"].includes(key);
+          if (key === "amount") {
+            input.type = "number";
+            input.min = "0.01";
+            input.step = "0.01";
+          }
+          input.required = true;
+          label.append(input);
+          fields.append(label);
+        });
+        document.getElementById("saveRequest").hidden = !editable;
+        dialog.showModal();
+      }
+      document
+        .getElementById("closeDialog")
+        .addEventListener("click", () => dialog.close());
+      document
+        .getElementById("requestForm")
+        .addEventListener("submit", (event) => {
+          event.preventDefault();
+          if (
+            selectedRequest === null ||
+            requests[selectedRequest].status !== "Draft"
+          )
+            return;
+          const values = new FormData(event.target);
+          requests[selectedRequest].amount = Number(values.get("amount"));
+          requests[selectedRequest].purpose = values.get("purpose").trim();
+          renderRows();
+          dialog.close();
+        });
+      function showNotice(title, message) {
+        selectedRequest = null;
+        document.getElementById("dialog-title").textContent = title;
+        document.getElementById("requestFields").textContent = message;
+        document.getElementById("saveRequest").hidden = true;
+        dialog.showModal();
+      }
+      document
+        .querySelectorAll("[data-notice]")
+        .forEach((button) =>
+          button.addEventListener("click", () =>
+            showNotice(
+              button.getAttribute("aria-label"),
+              button.dataset.notice,
+            ),
+          ),
+        );
+      document.querySelectorAll("[data-section]").forEach((button) =>
+        button.addEventListener("click", () => {
+          const section = button.dataset.section;
+          if (section === "Advance Requests") {
+            document
+              .querySelector(".transactions")
+              .scrollIntoView({ behavior: "smooth" });
+            return;
+          }
+          if (section === "Dashboard") {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+            return;
+          }
+          showNotice(
+            section,
+            section === "Reports"
+              ? "The charts show sample monthly disbursements and request statuses. Connect your reporting data to display live results."
+              : "This demo uses US dollars. Draft edits apply only to the current page session.",
+          );
+        }),
+      );
+      renderRows();
+      window.addEventListener("DOMContentLoaded", () => {
+        if (!window.echarts) {
+          document.querySelectorAll(".chart").forEach((element) => {
+            element.classList.add("chart-error");
+            element.textContent =
+              "Charts could not load. Check your internet connection and refresh the page.";
+          });
+          return;
+        }
+        const monthly = echarts.init(document.getElementById("monthlyChart")),
+          status = echarts.init(document.getElementById("statusChart"));
+        const font = {
+          fontFamily: "Arial, Helvetica, sans-serif",
+          fontSize: 10,
+          color: "#333339",
+        };
+        monthly.setOption({
+          textStyle: font,
+          tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
+          grid: { top: 17, right: 0, bottom: 23, left: 24 },
+          xAxis: {
+            type: "category",
+            data: [
+              "Jan",
+              "Feb",
+              "Mar",
+              "Apr",
+              "May",
+              "Jun",
+              "Jul",
+              "Aug",
+              "Sep",
+              "Oct",
+              "Nov",
+              "Dec",
+            ],
+            axisTick: { show: false },
+            axisLine: { lineStyle: { color: "#dcdde2" } },
+            axisLabel: { ...font, interval: 0, margin: 8 },
+          },
+          yAxis: {
+            type: "value",
+            min: 0,
+            max: 400,
+            interval: 100,
+            axisLabel: font,
+            splitLine: { lineStyle: { type: "dashed", color: "#e1e2e6" } },
+          },
+          series: [
+            {
+              name: "Mors",
+              type: "bar",
+              barMaxWidth: 10,
+              barGap: "15%",
+              itemStyle: { color: "#39306d", borderRadius: [1, 1, 0, 0] },
+              data: [
+                150, 205, 250, 185, 260, 245, 275, 295, 330, 260, 340, 300,
+              ],
+            },
+            {
+              name: "Draft",
+              type: "bar",
+              barMaxWidth: 10,
+              itemStyle: { color: "#cfd1d9", borderRadius: [1, 1, 0, 0] },
+              data: [
+                125, 170, 225, 215, 210, 330, 205, 345, 345, 310, 240, 275,
+              ],
+            },
+          ],
+        });
+        status.setOption({
+          textStyle: font,
+          tooltip: { trigger: "item", formatter: "{b}: {d}%" },
+          color: ["#7dc798", "#5798da", "#ed676d", "#9399a6"],
+          legend: {
+            data: ["Approved", "Rejected", "In Progress", "Draft"],
+            orient: "vertical",
+            right: "8%",
+            top: "center",
+            icon: "circle",
+            itemWidth: 9,
+            itemHeight: 9,
+            itemGap: 8,
+            textStyle: font,
+          },
+          series: [
+            {
+              type: "pie",
+              radius: ["55%", "86%"],
+              center: ["46%", "50%"],
+              startAngle: 90,
+              label: { show: false },
+              itemStyle: { borderColor: "#fff", borderWidth: 1 },
+              emphasis: { scaleSize: 4 },
+              data: [
+                { name: "Approved", value: 60 },
+                { name: "In Progress", value: 20 },
+                { name: "Rejected", value: 15 },
+                { name: "Draft", value: 5 },
+              ],
+            },
+          ],
+        });
+        new ResizeObserver(() => {
+          monthly.resize();
+          status.resize();
+        }).observe(document.querySelector(".charts"));
+      });
+    </script>
+  </body>
+</html>
